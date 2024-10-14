@@ -1,24 +1,56 @@
-using System;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class Drone
+[RequireComponent(typeof(Collider2D))]
+public class Drone : MonoBehaviour
 {
-    public int ID {set; get;}
-    public float Temperature { set; get; } = 0;
-    public float Wind { set; get; } = 0;
-    public float Battery { set; get; } = 0;
-    
-    private Random rnd = new Random();
-    
-    public Drone(int ID) 
+    public int Ammo { set; get; } // Ammo attribute
+    public int WeaponCapacity { set; get; } // Weapon Capacity attribute
+    public int Temperature { set; get; } = 0;
+
+    Flock agentFlock;
+    public Flock AgentFlock { get { return agentFlock; } }
+
+    Collider2D agentCollider;
+    public Collider2D AgentCollider { get { return agentCollider; } }
+
+    private void Start()
     {
-        this.ID = ID;
-        Update();
+        agentCollider = GetComponent<Collider2D>();
+        RandomizeAttributes(); // Initialize with random values
+        StartCoroutine(RandomizeAttributesPeriodically()); // Randomize at regular intervals
     }
-    
-    public void Update()
+
+    private void Update()
     {
-        Temperature = rnd.Next() * 100;
-        Wind = rnd.Next() * 100;
-        Battery = rnd.Next() * 100;
+        Temperature = (int)(Random.value * 100);
+    }
+
+    // Coroutine to randomize attributes periodically
+    private IEnumerator RandomizeAttributesPeriodically()
+    {
+        while (true)
+        {
+            RandomizeAttributes();
+            yield return new WaitForSeconds(2f); // Adjust the interval as needed
+        }
+    }
+
+    private void RandomizeAttributes()
+    {
+        Ammo = Random.Range(1, 100); // Random Ammo between 1 and 100
+        WeaponCapacity = Random.Range(1, 100); // Random Weapon Capacity between 1 and 100
+    }
+
+    public void Initialize(Flock flock)
+    {
+        agentFlock = flock;
+    }
+
+    public void Move(Vector2 velocity)
+    {
+        transform.up = velocity;
+        transform.position += (Vector3)velocity * Time.deltaTime;
     }
 }
